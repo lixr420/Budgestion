@@ -1,0 +1,19 @@
+{
+  "name": "BudGestion - Gestion de budget",
+  "short_name": "BudGestion",
+  "description": "Gérez vos revenus, dépenses et budgets simplement.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f2fa",
+  "theme_color": "#7656c8",
+  "lang": "fr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
