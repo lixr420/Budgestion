@@ -20,10 +20,6 @@ const categorySummary = document.querySelector('#category-summary');
 const transactionAnalysis = document.querySelector('#transaction-analysis');
 const budgetCategorySummary = document.querySelector('#budget-category-summary');
 const categoryBudgets = document.querySelector('#category-budgets');
-const monthlyBudget = document.querySelector('#monthly-budget');
-const availableBudget = document.querySelector('#available-budget');
-const budgetProgressBar = document.querySelector('#budget-progress-bar');
-const budgetProgressLabel = document.querySelector('#budget-progress-label');
 const planned = document.querySelector('#planned');
 const plannedLabel = document.querySelector('#planned-label');
 const plannedDateLabel = document.querySelector('#planned-date-label');
@@ -86,7 +82,6 @@ let sliderPointerStart = null;
 let sliderWheelDistance = 0;
 let sliderWheelLocked = false;
 let sliderWheelTimer = null;
-monthlyBudget.value = localStorage.getItem('budgestion-monthly-budget') || '';
 currencySelect.value = currency;
 accentColor.value = localStorage.getItem('budgestion-accent') || 'violet';
 tabOrder.value = localStorage.getItem('budgestion-tab-order') || 'overview,transactions,budget';
@@ -302,7 +297,6 @@ function renderBudget() {
 	document.querySelector('#balance').textContent = formatMoney(income - expense);
 	renderChart(income, expense);
 	renderInsights();
-	renderMonthlyBudget(expense);
 	renderCategoryBudgets();
 }
 
@@ -322,15 +316,6 @@ function renderCategoryBudgets() {
 	}));
 }
 
-function renderMonthlyBudget(expense) {
-	const budget = Number(monthlyBudget.value) || 0;
-	const remaining = budget - expense;
-	availableBudget.textContent = formatMoney(remaining);
-	availableBudget.classList.toggle('negative', remaining < 0);
-	const percentage = budget ? Math.min(expense / budget * 100, 100) : 0;
-	budgetProgressBar.style.width = `${percentage}%`;
-	budgetProgressLabel.textContent = budget ? `${Math.round(percentage)}% ${language === 'fr' ? "de l'enveloppe utilisée" : language === 'en' ? 'of allowance used' : language === 'he' ? 'מהמסגרת נוצלה' : 'лимита использовано'}` : t('noEnvelope');
-}
 
 function renderInsights() {
 	const accounts = [...new Set(transactions.map(item => item.account || 'Compte courant'))];
@@ -506,11 +491,6 @@ quickTransactionForm.addEventListener('submit', event => {
 	renderOperations();
 	logAction(type === 'income' ? 'Revenu ajouté depuis l’aperçu' : 'Dépense ajoutée depuis l’aperçu', `${formatMoney(amount)} · ${category}`);
 	quickTransactionForm.reset();
-});
-
-monthlyBudget.addEventListener('input', () => {
-	localStorage.setItem('budgestion-monthly-budget', monthlyBudget.value);
-	renderBudget();
 });
 
 renderBudget();
