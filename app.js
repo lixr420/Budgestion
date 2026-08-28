@@ -20,6 +20,9 @@ const categorySummary = document.querySelector('#category-summary');
 const transactionAnalysis = document.querySelector('#transaction-analysis');
 const budgetCategorySummary = document.querySelector('#budget-category-summary');
 const categoryBudgets = document.querySelector('#category-budgets');
+const monthlyPlannedTotal = document.querySelector('#monthly-planned-total');
+const monthlySpentTotal = document.querySelector('#monthly-spent-total');
+const monthlyAvailableTotal = document.querySelector('#monthly-available-total');
 const planned = document.querySelector('#planned');
 const plannedLabel = document.querySelector('#planned-label');
 const plannedDateLabel = document.querySelector('#planned-date-label');
@@ -301,10 +304,14 @@ function renderBudget() {
 }
 
 function renderCategoryBudgets() {
-	const categories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Salaire', 'Autre'];
+	const categories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Autre'];
+	let plannedTotal = 0;
+	let spentTotal = 0;
 	categoryBudgets.innerHTML = categories.map(category => {
 		const spent = transactions.filter(item => item.type === 'expense' && item.category === category).reduce((total, item) => total + item.amount, 0);
 		const budget = Number(categoryBudgetValues[category]) || 0;
+		plannedTotal += budget;
+		spentTotal += spent;
 		const remaining = budget - spent;
 		const percentage = budget ? Math.min(spent / budget * 100, 100) : 0;
 		return `<div class="category-budget-row"><div class="category-budget-title"><strong>${category}</strong><span>${formatMoney(spent)} dépensés</span></div><label>Enveloppe<input class="category-budget-input" data-category="${category}" type="number" min="0" step="0.01" value="${budget || ''}" placeholder="0,00" /></label><div class="category-budget-status"><div class="budget-progress"><i style="width: ${percentage}%"></i></div><span class="${remaining < 0 ? 'over-budget' : ''}">${budget ? (remaining >= 0 ? `${formatMoney(remaining)} restants` : `${formatMoney(Math.abs(remaining))} dépassés`) : 'Aucune enveloppe'}</span></div></div>`;
@@ -314,6 +321,10 @@ function renderCategoryBudgets() {
 		saveState('Budget par catégorie enregistré');
 		renderCategoryBudgets();
 	}));
+	monthlyPlannedTotal.textContent = formatMoney(plannedTotal);
+	monthlySpentTotal.textContent = formatMoney(spentTotal);
+	monthlyAvailableTotal.textContent = formatMoney(plannedTotal - spentTotal);
+	monthlyAvailableTotal.classList.toggle('over-budget', plannedTotal - spentTotal < 0);
 }
 
 
