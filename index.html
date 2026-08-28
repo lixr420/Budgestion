@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>BudGestion</title>
+		<link rel="stylesheet" href="/style.css" />
+	</head>
+	<body>
+		<main class="app">
+			<header>
+				<p class="eyebrow" data-i18n="personalManagement">GESTION PERSONNELLE</p>
+				<h1>BudGestion</h1>
+				<p class="intro" data-i18n="intro">Suivez vos revenus, vos dépenses et chaque action en temps réel.</p>
+				<div class="header-actions"><label><span data-i18n="language">Langue</span><select id="language"><option value="fr">Français</option><option value="en">English</option><option value="he">עברית</option><option value="ru">Русский</option></select></label><label><span data-i18n="currency">Devise</span><select id="currency"><option value="EUR">Euro (€)</option><option value="ILS">Shekel (₪)</option><option value="USD">Dollar ($)</option><option value="GBP">Livre (£)</option></select></label></div>
+			</header>
+			<nav class="tabs" aria-label="Navigation principale">
+				<button class="tab active" data-tab="overview" type="button" data-i18n="overview">Aperçu</button>
+				<button class="tab" data-tab="transactions" type="button" data-i18n="transactions">Transactions</button>
+				<button class="tab" data-tab="budget" type="button" data-i18n="budget">Budget</button>
+			</nav>
+
+			<section class="tab-panel active" data-panel="overview">
+			<div class="overview-heading"><div><p class="eyebrow" data-i18n="quickAction">ACTION RAPIDE</p><h2 data-i18n="manageBudget">Gérer mon budget</h2></div><button id="quick-add-transaction" type="button" data-i18n="addTransaction">Ajouter une transaction</button></div>
+			<section class="overview-slider" aria-label="Résumé du budget">
+				<div class="overview-viewport"><div class="overview">
+					<article><span data-i18n="currentBalance">Solde actuel</span><strong id="balance">0,00 €</strong></article>
+					<article><span data-i18n="totalIncome">Revenus totaux</span><strong id="income-total">0,00 €</strong></article>
+					<article><span data-i18n="totalExpenses">Dépenses totales</span><strong id="expense-total">0,00 €</strong></article>
+					<article><span data-i18n="fixedExpenses">Dépenses fixes</span><strong id="fixed-total">0,00 €</strong></article>
+					<article><span data-i18n="variableExpenses">Dépenses variables</span><strong id="variable-total">0,00 €</strong></article>
+				</div></div>
+				<div class="slider-controls"><button id="overview-prev" class="slider-button" type="button" aria-label="Tableau précédent">‹</button><span id="overview-position">1 / 5</span><button id="overview-next" class="slider-button" type="button" aria-label="Tableau suivant">›</button></div>
+			</section>
+
+			<section class="chart-panel" aria-labelledby="chart-title">
+				<div class="section-heading"><h2 id="chart-title" data-i18n="overviewChart">Vue d'ensemble</h2><button id="chart-toggle" class="quiet" type="button">Vue circulaire</button></div>
+				<div id="budget-chart" class="budget-chart" role="img" aria-label="Graphe des revenus et des dépenses"></div>
+			</section>
+			<section class="insights overview-insights">
+				<div class="insight-card"><h2 data-i18n="accountBalances">Soldes des comptes</h2><div id="account-balances"></div></div>
+				<div class="insight-card"><h2 data-i18n="plannedIncome">Revenus planifiés</h2><div id="planned-income-list"></div><p id="empty-planned-income" class="empty" data-i18n="noPlannedIncome">Aucun revenu planifié.</p></div>
+				<div class="insight-card"><h2 data-i18n="plannedExpenses">Dépenses planifiées</h2><div id="planned-list"></div><p id="empty-planned" class="empty" data-i18n="noPlannedExpenses">Aucune dépense planifiée.</p></div>
+			</section>
+			</section>
+
+			<section class="tab-panel" data-panel="transactions">
+			<section class="forms">
+				<form id="transaction-form">
+					<h2 id="form-title" data-i18n="addTransaction">Ajouter une opération</h2>
+					<label><span data-i18n="type">Type</span><select id="type"><option value="expense" data-i18n="expense">Dépense</option><option value="income" data-i18n="income">Revenu</option></select></label>
+					<label><span data-i18n="amount">Montant (€)</span><input id="amount" type="number" min="0.01" step="0.01" required /></label>
+					<label><span data-i18n="account">Compte</span><select id="account"><option>Compte courant</option><option>Épargne</option><option>Carte bancaire</option></select></label>
+					<label><span data-i18n="category">Catégorie</span><select id="category"><option>Logement</option><option>Alimentation</option><option>Transport</option><option>Loisirs</option><option>Salaire</option><option>Autre</option></select></label>
+					<label id="expense-kind-label"><span data-i18n="nature">Nature</span><select id="expense-kind"><option value="fixed" data-i18n="fixedExpense">Dépense fixe</option><option value="variable" data-i18n="variableExpense">Dépense variable</option></select></label>
+					<label id="planned-label" class="planned-label"><input id="planned" type="checkbox" /> <span data-i18n="plannedExpense">Dépense planifiée</span></label>
+					<label id="planned-date-label" hidden><span data-i18n="plannedDate">Date prévue</span><input id="planned-date" type="date" /></label>
+					<label><span data-i18n="description">Description</span><input id="description" type="text" placeholder="Facultatif" /></label>
+					<div class="form-actions"><button id="submit-transaction" type="submit" data-i18n="addOperation">Ajouter l'opération</button><button id="cancel-edit" class="quiet" type="button" hidden data-i18n="cancel">Annuler</button></div>
+				</form>
+
+				<section class="journal">
+					<div class="section-heading"><h2 data-i18n="actionLog">Journal des actions</h2><button id="clear-log" class="quiet" type="button" data-i18n="clear">Effacer</button></div>
+					<p id="empty-log" class="empty" data-i18n="actionsWillAppear">Vos actions apparaîtront ici.</p>
+					<ol id="action-log" aria-live="polite"></ol>
+				</section>
+			</section>
+
+			<section class="operations">
+				<div class="section-heading"><h2 data-i18n="myOperations">Mes opérations</h2><span id="save-status" class="save-status" data-i18n="autosave">Sauvegarde automatique active</span></div>
+				<p id="empty-operations" class="empty" data-i18n="noOperations">Aucune opération enregistrée.</p>
+				<div id="operations-list"></div>
+			</section>
+			<section class="insights transaction-insights">
+				<div class="insight-card"><h2 data-i18n="transactionAnalysis">Analyse des transactions</h2><div id="category-summary"></div></div>
+				<div class="insight-card"><h2 data-i18n="distribution">Répartition</h2><div id="transaction-analysis"></div></div>
+			</section>
+			</section>
+
+			<section class="tab-panel" data-panel="budget">
+				<section class="budget-planning">
+					<div><p class="eyebrow" data-i18n="planning">PLANIFICATION</p><h2 data-i18n="monthlyBudget">Budget mensuel</h2><p class="muted" data-i18n="budgetDescription">Définissez votre enveloppe mensuelle pour suivre ce qu'il vous reste à dépenser.</p></div>
+					<label><span data-i18n="plannedMonthlyBudget">Budget prévu mensuel (€)</span><input id="monthly-budget" type="number" min="0" step="0.01" placeholder="0,00" /></label>
+					<div class="budget-available"><span data-i18n="availableBudget">Budget disponible</span><strong id="available-budget">0,00 €</strong><div class="budget-progress"><i id="budget-progress-bar"></i></div><small id="budget-progress-label" data-i18n="noEnvelope">Aucune enveloppe définie</small></div>
+				</section>
+				<section class="insights budget-insights"><div class="insight-card"><h2>Budget par catégorie</h2><div id="budget-category-summary"></div><p class="empty">Les dépenses sont regroupées automatiquement.</p></div></section>
+			</section>
+		</main>
+		<script type="module" src="/app.js"></script>
+	</body>
+</html>

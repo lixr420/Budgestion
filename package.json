@@ -1,0 +1,30 @@
+{
+  "name": "budgestion",
+  "version": "1.0.0",
+  "description": "Système de gestion de budget avec suivi détaillé des actions",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "python3 -m http.server 5173",
+    "start": "vite"
+  },
+  "keywords": [
+    "budget",
+    "finance",
+    "tracker",
+    "vite",
+    "javascript"
+  ],
+  "author": "Woody",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-basic-ssl": "^1.1.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
