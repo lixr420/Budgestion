@@ -80,6 +80,7 @@ let overviewSlide = 0;
 const overviewSlides = 5;
 let tutorialStep = 0;
 let sliderPointerStart = null;
+let sliderWheelDistance = 0;
 monthlyBudget.value = localStorage.getItem('budgestion-monthly-budget') || '';
 currencySelect.value = currency;
 accentColor.value = localStorage.getItem('budgestion-accent') || 'violet';
@@ -178,6 +179,17 @@ overviewViewport.addEventListener('pointerup', event => {
 });
 
 overviewViewport.addEventListener('pointercancel', () => { sliderPointerStart = null; });
+
+overviewViewport.addEventListener('wheel', event => {
+	const horizontalDistance = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.shiftKey ? event.deltaY : 0;
+	if (!horizontalDistance) return;
+	event.preventDefault();
+	sliderWheelDistance += horizontalDistance;
+	if (Math.abs(sliderWheelDistance) >= 45) {
+		moveOverview(sliderWheelDistance > 0 ? 1 : -1);
+		sliderWheelDistance = 0;
+	}
+}, { passive: false });
 
 function loadState() {
 	try {
