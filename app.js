@@ -38,6 +38,7 @@ const cancelEdit = document.querySelector('#cancel-edit');
 const tabs = document.querySelectorAll('.tab');
 const panels = document.querySelectorAll('.tab-panel');
 const quickTransactionForm = document.querySelector('#quick-transaction-form');
+const csvImport = document.querySelector('#csv-import');
 const tutorialDialog = document.querySelector('#tutorial-dialog');
 const settingsDialog = document.querySelector('#settings-dialog');
 const tutorialNext = document.querySelector('#tutorial-next');
@@ -140,6 +141,61 @@ applyTabOrder();
 function formatMoney(value) {
 	return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(value);
 }
+
+function parseCsvLine(line, separator) {
+	const values = [];
+	let value = '';
+	let quoted = false;
+	for (const character of line) {
+		if (character === '"') quoted = !quoted;
+		else if (character === separator && !quoted) { values.push(value.trim()); value = ''; }
+		else value += character;
+	}
+	values.push(value.trim());
+	return values;
+}
+
+function importCsv(text) {
+	const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/).filter(line => line.trim());
+	if (lines.length < 2) throw new Error('Fichier CSV vide');
+	const separator = lines[0].includes(';') ? ';' : ',';
+	const headers = parseCsvLine(lines[0], separator).map(header => header.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+	const findColumn = names => headers.findIndex(header => names.some(name => header.includes(name)));
+	const amountIndex = findColumn(['montant', 'amount', 'somme', 'debit', 'credit']);
+	if (amountIndex < 0) throw new Error('Colonne montant introuvable');
+	const typeIndex = findColumn(['type', 'sens', 'nature']);
+	const categoryIndex = findColumn(['categorie', 'category']);
+	const accountIndex = findColumn(['compte', 'account']);
+	const descriptionIndex = findColumn(['description', 'libelle', 'label', 'memo']);
+	const dateIndex = findColumn(['date']);
+	let imported = 0;
+	lines.slice(1).forEach(line => {
+		const columns = parseCsvLine(line, separator);
+		const rawAmount = (columns[amountIndex] || '').replace(/[^0-9,.-]/g, '').replace(',', '.');
+		const amount = Math.abs(Number(rawAmount));
+		if (!amount) return;
+		const rawType = typeIndex >= 0 ? (columns[typeIndex] || '').toLowerCase() : '';
+		const isIncome = rawType.includes('credit') || rawType.includes('income') || rawType.includes('revenu') || Number(rawAmount) > 0;
+		transactions.push({ type: isIncome ? 'income' : 'expense', amount, category: categoryIndex >= 0 ? columns[categoryIndex] || 'Autre' : 'Autre', account: accountIndex >= 0 ? columns[accountIndex] || 'Compte courant' : 'Compte courant', expenseKind: isIncome ? null : 'variable', planned: false, plannedDate: '', description: descriptionIndex >= 0 ? columns[descriptionIndex] || '' : '', date: dateIndex >= 0 ? columns[dateIndex] || '' : '' });
+		imported += 1;
+	});
+	if (!imported) throw new Error('Aucune opération valide');
+	renderBudget();
+	renderOperations();
+	logAction('Import CSV effectué', `${imported} opération${imported > 1 ? 's' : ''} importée${imported > 1 ? 's' : ''}`);
+}
+
+csvImport.addEventListener('change', event => {
+	const [file] = event.target.files;
+	if (!file) return;
+	const reader = new FileReader();
+	reader.addEventListener('load', () => {
+		try { importCsv(String(reader.result)); }
+		catch (error) { saveStatus.textContent = error.message; }
+		csvImport.value = '';
+	});
+	reader.readAsText(file);
+});
 
 applyTranslations();
 

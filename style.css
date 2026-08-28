@@ -119,6 +119,7 @@ header .intro { position: relative; z-index: 1; color: rgba(255,255,255,.72); }
 .circle-chart { background: conic-gradient(var(--accent) 0 var(--income-degrees), var(--coral) var(--income-degrees) 360deg); box-shadow: 0 10px 25px rgba(118,86,200,.15); }
 .quick-form { background: var(--accent-soft); border-color: #ddd3f8; }
 input, select { border-color: var(--line); transition: border-color .2s, box-shadow .2s, background .2s; }
+.import-label { padding: 12px; border: 1px dashed #cfc5eb; border-radius: 9px; background: #faf8ff; color: var(--muted); } .import-label input { padding: 8px; background: transparent; border: 0; }
 input:hover, select:hover { background: #fdfcff; }
 input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(118,86,200,.12); }
 button { transition: background .2s, box-shadow .2s, transform .2s; }
