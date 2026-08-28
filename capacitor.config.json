@@ -1,0 +1,9 @@
+{
+  "appId": "com.budgestion.app",
+  "appName": "BudGestion",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
