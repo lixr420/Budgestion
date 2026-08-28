@@ -37,6 +37,19 @@ const cancelEdit = document.querySelector('#cancel-edit');
 const tabs = document.querySelectorAll('.tab');
 const panels = document.querySelectorAll('.tab-panel');
 const quickTransactionForm = document.querySelector('#quick-transaction-form');
+const tutorialDialog = document.querySelector('#tutorial-dialog');
+const settingsDialog = document.querySelector('#settings-dialog');
+const tutorialNext = document.querySelector('#tutorial-next');
+const tutorialTitle = document.querySelector('#tutorial-title');
+const tutorialText = document.querySelector('#tutorial-text');
+const tutorialDots = document.querySelectorAll('.tutorial-dots i');
+const accentColor = document.querySelector('#accent-color');
+const tabOrder = document.querySelector('#tab-order');
+const tutorialSteps = [
+	['Votre tableau de bord', "Consultez votre solde et vos indicateurs depuis l'onglet Aperçu."],
+	['Vos opérations', 'Ajoutez, modifiez et catégorisez vos revenus et dépenses dans Transactions.'],
+	['Votre organisation', "Définissez votre budget mensuel et personnalisez l'apparence dans Paramètres."]
+];
 const languageSelect = document.querySelector('#language');
 const translations = {
 	fr: { quickAction: 'ACTION RAPIDE', manageBudget: 'Gérer mon budget', personalManagement: 'GESTION PERSONNELLE', intro: 'Suivez vos revenus, vos dépenses et chaque action en temps réel.', language: 'Langue', currency: 'Devise', overview: 'Aperçu', transactions: 'Transactions', budget: 'Budget', currentBalance: 'Solde actuel', totalIncome: 'Revenus totaux', totalExpenses: 'Dépenses totales', fixedExpenses: 'Dépenses fixes', variableExpenses: 'Dépenses variables', overviewChart: "Vue d'ensemble", accountBalances: 'Soldes des comptes', plannedIncome: 'Revenus planifiés', plannedExpenses: 'Dépenses planifiées', noPlannedIncome: 'Aucun revenu planifié.', noPlannedExpenses: 'Aucune dépense planifiée.', addTransaction: 'Ajouter une opération', type: 'Type', expense: 'Dépense', income: 'Revenu', amount: 'Montant (€)', account: 'Compte', category: 'Catégorie', nature: 'Nature', fixedExpense: 'Dépense fixe', variableExpense: 'Dépense variable', plannedExpense: 'Dépense planifiée', plannedIncome: 'Revenu planifié', plannedDate: 'Date prévue', description: 'Description', addOperation: "Ajouter l'opération", cancel: 'Annuler', actionLog: 'Journal des actions', clear: 'Effacer', actionsWillAppear: 'Vos actions apparaîtront ici.', myOperations: 'Mes opérations', autosave: 'Sauvegarde automatique active', noOperations: 'Aucune opération enregistrée.', transactionAnalysis: 'Analyse des transactions', distribution: 'Répartition', planning: 'PLANIFICATION', monthlyBudget: 'Budget mensuel', budgetDescription: "Définissez votre enveloppe mensuelle pour suivre ce qu'il vous reste à dépenser.", plannedMonthlyBudget: 'Budget prévu mensuel (€)', availableBudget: 'Budget disponible', noEnvelope: 'Aucune enveloppe définie', revenue: 'Revenu', expenseLabel: 'Dépense', noDescription: 'Sans description', entry: 'Entrée', fixed: 'Fixe', variable: 'Variable', planned: 'Planifiée', total: 'Total', noAccount: 'Aucun compte alimenté.', noCategory: 'Aucune catégorie.', operationCount: "Nombre d'opérations" },
@@ -60,8 +73,56 @@ let currency = localStorage.getItem('budgestion-currency') || 'EUR';
 let chartMode = localStorage.getItem('budgestion-chart-mode') || 'bars';
 let overviewSlide = 0;
 const overviewSlides = 5;
+let tutorialStep = 0;
 monthlyBudget.value = localStorage.getItem('budgestion-monthly-budget') || '';
 currencySelect.value = currency;
+accentColor.value = localStorage.getItem('budgestion-accent') || 'violet';
+tabOrder.value = localStorage.getItem('budgestion-tab-order') || 'overview,transactions,budget';
+
+function openDialog(dialog) {
+	if (typeof dialog.showModal === 'function') dialog.showModal();
+	else dialog.setAttribute('open', '');
+}
+
+function closeDialog(dialog) {
+	if (typeof dialog.close === 'function') dialog.close();
+	else dialog.removeAttribute('open');
+}
+
+function updateTutorial() {
+	const [title, text] = tutorialSteps[tutorialStep];
+	tutorialTitle.textContent = title;
+	tutorialText.textContent = text;
+	tutorialDots.forEach((dot, index) => dot.classList.toggle('active', index === tutorialStep));
+	tutorialNext.textContent = tutorialStep === tutorialSteps.length - 1 ? 'Terminer' : 'Suivant';
+}
+
+function applyTabOrder() {
+	const navigation = document.querySelector('.tabs');
+	const orderedNames = tabOrder.value.split(',');
+	orderedNames.forEach(name => {
+		const tab = navigation.querySelector(`[data-tab="${name}"]`);
+		if (tab) navigation.appendChild(tab);
+	});
+}
+
+function applyAccent() {
+	const colors = { violet: ['#7656c8', '#5f42ae', '#f0ebff'], bleu: ['#3978c8', '#285da2', '#e9f2ff'], vert: ['#398f70', '#247056', '#e7f6ef'], corail: ['#d86b58', '#b84d3e', '#fff0ed'] };
+	const [accent, deep, soft] = colors[accentColor.value];
+	document.documentElement.style.setProperty('--accent', accent);
+	document.documentElement.style.setProperty('--accent-deep', deep);
+	document.documentElement.style.setProperty('--accent-soft', soft);
+}
+
+document.querySelector('#open-tutorial').addEventListener('click', () => { tutorialStep = 0; updateTutorial(); openDialog(tutorialDialog); });
+document.querySelector('#open-settings').addEventListener('click', () => openDialog(settingsDialog));
+tutorialNext.addEventListener('click', () => { if (tutorialStep < tutorialSteps.length - 1) { tutorialStep += 1; updateTutorial(); } else closeDialog(tutorialDialog); });
+document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => closeDialog(document.querySelector(`#${button.dataset.closeDialog}`))));
+accentColor.addEventListener('change', () => { localStorage.setItem('budgestion-accent', accentColor.value); applyAccent(); });
+tabOrder.addEventListener('change', () => { localStorage.setItem('budgestion-tab-order', tabOrder.value); applyTabOrder(); });
+document.querySelector('#reset-settings').addEventListener('click', () => { accentColor.value = 'violet'; tabOrder.value = 'overview,transactions,budget'; localStorage.removeItem('budgestion-accent'); localStorage.removeItem('budgestion-tab-order'); applyAccent(); applyTabOrder(); });
+applyAccent();
+applyTabOrder();
 
 function formatMoney(value) {
 	return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(value);

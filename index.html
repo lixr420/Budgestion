@@ -13,6 +13,7 @@
 	</head>
 	<body>
 		<main class="app">
+			<div class="app-tools"><button id="open-tutorial" class="tool-button" type="button">? <span>Tutoriel</span></button><button id="open-settings" class="tool-button" type="button">⚙ <span>Paramètres</span></button></div>
 			<header>
 				<p class="eyebrow" data-i18n="personalManagement">GESTION PERSONNELLE</p>
 				<h1>BudGestion</h1>
@@ -97,6 +98,18 @@
 				<section class="insights budget-insights"><div class="insight-card"><h2>Budget par catégorie</h2><div id="budget-category-summary"></div><p class="empty">Les dépenses sont regroupées automatiquement.</p></div></section>
 			</section>
 		</main>
+		<dialog id="tutorial-dialog" class="app-dialog">
+			<button class="dialog-close" data-close-dialog="tutorial-dialog" type="button" aria-label="Fermer">×</button>
+			<p class="eyebrow">BIENVENUE DANS BUDGESTION</p><h2 id="tutorial-title">Votre tableau de bord</h2><p id="tutorial-text">Consultez votre solde et vos indicateurs depuis l'onglet Aperçu.</p>
+			<div class="tutorial-dots"><i class="active"></i><i></i><i></i></div><div class="dialog-actions"><button id="tutorial-next" type="button">Suivant</button></div>
+		</dialog>
+		<dialog id="settings-dialog" class="app-dialog settings-dialog">
+			<button class="dialog-close" data-close-dialog="settings-dialog" type="button" aria-label="Fermer">×</button>
+			<p class="eyebrow">PERSONNALISATION</p><h2>Paramètres</h2>
+			<label>Couleur d'accent<select id="accent-color"><option value="violet">Violet</option><option value="bleu">Bleu</option><option value="vert">Vert</option><option value="corail">Corail</option></select></label>
+			<label>Organisation des onglets<select id="tab-order"><option value="overview,transactions,budget">Aperçu · Transactions · Budget</option><option value="transactions,overview,budget">Transactions · Aperçu · Budget</option><option value="budget,overview,transactions">Budget · Aperçu · Transactions</option></select></label>
+			<button id="reset-settings" class="quiet" type="button">Réinitialiser les paramètres</button>
+		</dialog>
 		<script type="module" src="/app.js"></script>
 		<script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));</script>
 	</body>
