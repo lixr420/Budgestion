@@ -31,6 +31,7 @@ const overviewTrack = document.querySelector('.overview');
 const overviewPosition = document.querySelector('#overview-position');
 const overviewPrev = document.querySelector('#overview-prev');
 const overviewNext = document.querySelector('#overview-next');
+const overviewViewport = document.querySelector('.overview-viewport');
 const formTitle = document.querySelector('#form-title');
 const submitTransaction = document.querySelector('#submit-transaction');
 const cancelEdit = document.querySelector('#cancel-edit');
@@ -78,6 +79,7 @@ let chartMode = localStorage.getItem('budgestion-chart-mode') || 'bars';
 let overviewSlide = 0;
 const overviewSlides = 5;
 let tutorialStep = 0;
+let sliderPointerStart = null;
 monthlyBudget.value = localStorage.getItem('budgestion-monthly-budget') || '';
 currencySelect.value = currency;
 accentColor.value = localStorage.getItem('budgestion-accent') || 'violet';
@@ -162,6 +164,20 @@ function moveOverview(direction) {
 
 overviewPrev.addEventListener('click', () => moveOverview(-1));
 overviewNext.addEventListener('click', () => moveOverview(1));
+
+overviewViewport.addEventListener('pointerdown', event => {
+	sliderPointerStart = event.clientX;
+	overviewViewport.setPointerCapture(event.pointerId);
+});
+
+overviewViewport.addEventListener('pointerup', event => {
+	if (sliderPointerStart === null) return;
+	const pointerDistance = event.clientX - sliderPointerStart;
+	if (Math.abs(pointerDistance) > 45) moveOverview(pointerDistance < 0 ? 1 : -1);
+	sliderPointerStart = null;
+});
+
+overviewViewport.addEventListener('pointercancel', () => { sliderPointerStart = null; });
 
 function loadState() {
 	try {
