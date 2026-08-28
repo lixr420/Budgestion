@@ -62,11 +62,12 @@ let overviewSlide = 0;
 const overviewSlides = 5;
 monthlyBudget.value = localStorage.getItem('budgestion-monthly-budget') || '';
 currencySelect.value = currency;
-applyTranslations();
 
 function formatMoney(value) {
 	return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(value);
 }
+
+applyTranslations();
 
 currencySelect.addEventListener('change', () => {
 	currency = currencySelect.value;
