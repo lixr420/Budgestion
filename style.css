@@ -124,6 +124,7 @@ input:hover, select:hover { background: #fdfcff; }
 input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(118,86,200,.12); }
 button { transition: background .2s, box-shadow .2s, transform .2s; }
 .insights { gap: 18px; }
+.category-budget-panel { margin-top: 22px; padding: 24px; background: rgba(255,255,255,.9); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 13px 30px rgba(60,45,100,.07); } .category-budget-panel h2 { margin: 0 0 4px; } .category-budgets { display: grid; gap: 4px; } .category-budget-row { display: grid; grid-template-columns: 1fr 150px 1.2fr; gap: 24px; align-items: center; padding: 15px 0; border-top: 1px solid #eeeaf5; } .category-budget-title strong, .category-budget-title span { display: block; } .category-budget-title span { margin-top: 4px; color: var(--muted); font-size: .8rem; } .category-budget-row label { margin: 0; color: var(--muted); font-size: .75rem; } .category-budget-row input { margin-top: 5px; } .category-budget-status span { display: block; margin-top: 6px; color: var(--muted); font-size: .8rem; } .category-budget-status .over-budget { color: var(--coral); font-weight: 700; } .category-budget-status .budget-progress { height: 6px; }
 .insight-card { padding: 24px; background: rgba(255,255,255,.9); }
 .insight-card h2 { font-size: 1.2rem; }
 .insight-row { border-top-color: #eeeaf5; }
@@ -136,4 +137,5 @@ button { transition: background .2s, box-shadow .2s, transform .2s; }
 .edit-operation:hover { background: #e3dafa; }
 .save-status { color: var(--muted); font-size: .78rem; }
 @media (max-width: 700px) { header { padding: 26px 22px; border-radius: 18px; } .app { padding-left: 16px; padding-right: 16px; } .overview-heading { align-items: flex-start; flex-direction: column; } .overview-heading > button { width: 100%; } .chart-panel, .operations, .insight-card, form, .journal { padding: 20px; } }
+@media (max-width: 700px) { .category-budget-row { grid-template-columns: 1fr 1fr; gap: 12px; } .category-budget-status { grid-column: 1 / -1; } }
 

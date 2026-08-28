@@ -2,6 +2,7 @@ const STORAGE_KEY = 'budgestion-state';
 const savedState = loadState();
 const transactions = savedState.transactions;
 const actions = savedState.actions;
+const categoryBudgetValues = savedState.categoryBudgets || {};
 const form = document.querySelector('#transaction-form');
 const actionLog = document.querySelector('#action-log');
 const emptyLog = document.querySelector('#empty-log');
@@ -18,6 +19,7 @@ const emptyPlannedIncome = document.querySelector('#empty-planned-income');
 const categorySummary = document.querySelector('#category-summary');
 const transactionAnalysis = document.querySelector('#transaction-analysis');
 const budgetCategorySummary = document.querySelector('#budget-category-summary');
+const categoryBudgets = document.querySelector('#category-budgets');
 const monthlyBudget = document.querySelector('#monthly-budget');
 const availableBudget = document.querySelector('#available-budget');
 const budgetProgressBar = document.querySelector('#budget-progress-bar');
@@ -258,7 +260,8 @@ function loadState() {
 		const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
 		return {
 			transactions: Array.isArray(state?.transactions) ? state.transactions : [],
-			actions: Array.isArray(state?.actions) ? state.actions.map(action => ({ ...action, date: new Date(action.date) })) : []
+			actions: Array.isArray(state?.actions) ? state.actions.map(action => ({ ...action, date: new Date(action.date) })) : [],
+			categoryBudgets: state?.categoryBudgets && typeof state.categoryBudgets === 'object' ? state.categoryBudgets : {}
 		};
 	} catch {
 		return { transactions: [], actions: [] };
@@ -267,7 +270,7 @@ function loadState() {
 
 function saveState(message = 'Sauvegarde automatique effectuée') {
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, actions }));
+		localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, actions, categoryBudgets: categoryBudgetValues }));
 		saveStatus.textContent = `${message} · ${new Date().toLocaleTimeString('fr-FR')}`;
 	} catch {
 		saveStatus.textContent = 'Sauvegarde locale indisponible';
@@ -300,6 +303,23 @@ function renderBudget() {
 	renderChart(income, expense);
 	renderInsights();
 	renderMonthlyBudget(expense);
+	renderCategoryBudgets();
+}
+
+function renderCategoryBudgets() {
+	const categories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Salaire', 'Autre'];
+	categoryBudgets.innerHTML = categories.map(category => {
+		const spent = transactions.filter(item => item.type === 'expense' && item.category === category).reduce((total, item) => total + item.amount, 0);
+		const budget = Number(categoryBudgetValues[category]) || 0;
+		const remaining = budget - spent;
+		const percentage = budget ? Math.min(spent / budget * 100, 100) : 0;
+		return `<div class="category-budget-row"><div class="category-budget-title"><strong>${category}</strong><span>${formatMoney(spent)} dépensés</span></div><label>Enveloppe<input class="category-budget-input" data-category="${category}" type="number" min="0" step="0.01" value="${budget || ''}" placeholder="0,00" /></label><div class="category-budget-status"><div class="budget-progress"><i style="width: ${percentage}%"></i></div><span class="${remaining < 0 ? 'over-budget' : ''}">${budget ? (remaining >= 0 ? `${formatMoney(remaining)} restants` : `${formatMoney(Math.abs(remaining))} dépassés`) : 'Aucune enveloppe'}</span></div></div>`;
+	}).join('');
+	categoryBudgets.querySelectorAll('.category-budget-input').forEach(input => input.addEventListener('input', event => {
+		categoryBudgetValues[event.target.dataset.category] = event.target.value;
+		saveState('Budget par catégorie enregistré');
+		renderCategoryBudgets();
+	}));
 }
 
 function renderMonthlyBudget(expense) {
