@@ -3,8 +3,8 @@ const savedState = loadState();
 const transactions = savedState.transactions;
 const actions = savedState.actions;
 const categoryBudgetValues = savedState.categoryBudgets || {};
-const defaultCategories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Autre'];
-const categoryNames = [...new Set((Array.isArray(savedState.categories) && savedState.categories.length ? savedState.categories : defaultCategories).filter(category => category && category !== 'Salaire'))];
+const defaultCategories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Salaire', 'Pension', 'Indemnité', 'Allocation familiale', 'Autre'];
+const categoryNames = [...new Set([...defaultCategories, ...(Array.isArray(savedState.categories) ? savedState.categories : [])].filter(Boolean))];
 const form = document.querySelector('#transaction-form');
 const actionLog = document.querySelector('#action-log');
 const emptyLog = document.querySelector('#empty-log');
@@ -77,6 +77,10 @@ function applyTranslations() {
 	document.documentElement.lang = language;
 	document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
 	document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = t(element.dataset.i18n); });
+	if (language === 'fr') {
+		document.querySelector('#type option[value="expense"]').textContent = 'Dépenses';
+		document.querySelector('#type option[value="income"]').textContent = 'Recettes';
+	}
 	document.querySelector('#planned-label span').textContent = t(document.querySelector('#type').value === 'income' ? 'plannedIncome' : 'plannedExpense');
 	document.querySelector('#chart-toggle').textContent = chartMode === 'bars' ? (language === 'fr' ? 'Vue circulaire' : language === 'en' ? 'Circular view' : language === 'he' ? 'תצוגה מעגלית' : 'Круговой вид') : (language === 'fr' ? 'Vue en colonnes' : language === 'en' ? 'Bar view' : language === 'he' ? 'תצוגת עמודות' : 'Вид столбцами');
 }

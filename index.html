@@ -29,9 +29,9 @@
 			<section class="tab-panel active" data-panel="overview">
 			<div class="overview-heading"><div><p class="eyebrow" data-i18n="quickAction">ACTION RAPIDE</p><h2 data-i18n="manageBudget">Gérer mon budget</h2></div></div>
 			<form id="quick-transaction-form" class="quick-form">
-				<label><span>Type</span><select id="quick-type"><option value="expense">Dépense</option><option value="income">Revenu</option></select></label>
+				<label><span>Type</span><select id="quick-type"><option value="expense">Dépenses</option><option value="income">Recettes</option></select></label>
 				<label><span>Montant</span><input id="quick-amount" type="number" min="0.01" step="0.01" required placeholder="0,00" /></label>
-				<label><span>Catégorie</span><select id="quick-category"><option>Logement</option><option>Alimentation</option><option>Transport</option><option>Loisirs</option><option>Autre</option></select></label>
+				<label><span>Catégorie</span><select id="quick-category"><option>Logement</option><option>Alimentation</option><option>Transport</option><option>Loisirs</option><option>Salaire</option><option>Pension</option><option>Indemnité</option><option>Allocation familiale</option><option>Autre</option></select></label>
 				<button type="submit">Ajouter directement</button>
 			</form>
 			<section class="overview-slider" aria-label="Résumé du budget">
@@ -61,10 +61,10 @@
 				<form id="transaction-form">
 					<h2 id="form-title" data-i18n="addTransaction">Ajouter une opération</h2>
 					<label class="import-label"><span>Importer un relevé CSV</span><input id="csv-import" type="file" accept=".csv,text/csv" /></label>
-					<label><span data-i18n="type">Type</span><select id="type"><option value="expense" data-i18n="expense">Dépense</option><option value="income" data-i18n="income">Revenu</option></select></label>
+					<label><span data-i18n="type">Type</span><select id="type"><option value="expense" data-i18n="expense">Dépenses</option><option value="income" data-i18n="income">Recettes</option></select></label>
 					<label><span data-i18n="amount">Montant (€)</span><input id="amount" type="number" min="0.01" step="0.01" required /></label>
 					<label><span data-i18n="account">Compte</span><select id="account"><option>Compte courant</option><option>Carte bancaire</option><option>Chèque</option><option>Espèces</option><option>Virement</option><option>Épargne</option></select></label>
-					<label><span data-i18n="category">Catégorie</span><select id="category"><option>Logement</option><option>Alimentation</option><option>Transport</option><option>Loisirs</option><option>Autre</option></select></label>
+					<label><span data-i18n="category">Catégorie</span><select id="category"><option>Logement</option><option>Alimentation</option><option>Transport</option><option>Loisirs</option><option>Salaire</option><option>Pension</option><option>Indemnité</option><option>Allocation familiale</option><option>Autre</option></select></label>
 					<label id="expense-kind-label"><span data-i18n="nature">Nature</span><select id="expense-kind"><option value="fixed" data-i18n="fixedExpense">Dépense fixe</option><option value="variable" data-i18n="variableExpense">Dépense variable</option></select></label>
 					<label id="planned-label" class="planned-label"><input id="planned" type="checkbox" /> <span data-i18n="plannedExpense">Dépense planifiée</span></label>
 					<label id="planned-date-label" hidden><span data-i18n="plannedDate">Date prévue</span><input id="planned-date" type="date" /></label>
