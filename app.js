@@ -81,6 +81,8 @@ const overviewSlides = 5;
 let tutorialStep = 0;
 let sliderPointerStart = null;
 let sliderWheelDistance = 0;
+let sliderWheelLocked = false;
+let sliderWheelTimer = null;
 monthlyBudget.value = localStorage.getItem('budgestion-monthly-budget') || '';
 currencySelect.value = currency;
 accentColor.value = localStorage.getItem('budgestion-accent') || 'violet';
@@ -184,10 +186,14 @@ overviewViewport.addEventListener('wheel', event => {
 	const horizontalDistance = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.shiftKey ? event.deltaY : 0;
 	if (!horizontalDistance) return;
 	event.preventDefault();
+	if (sliderWheelLocked) return;
 	sliderWheelDistance += horizontalDistance;
 	if (Math.abs(sliderWheelDistance) >= 45) {
 		moveOverview(sliderWheelDistance > 0 ? 1 : -1);
 		sliderWheelDistance = 0;
+		sliderWheelLocked = true;
+		clearTimeout(sliderWheelTimer);
+		sliderWheelTimer = setTimeout(() => { sliderWheelLocked = false; }, 550);
 	}
 }, { passive: false });
 
