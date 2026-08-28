@@ -40,15 +40,19 @@ const quickTransactionForm = document.querySelector('#quick-transaction-form');
 const tutorialDialog = document.querySelector('#tutorial-dialog');
 const settingsDialog = document.querySelector('#settings-dialog');
 const tutorialNext = document.querySelector('#tutorial-next');
+const tutorialPrev = document.querySelector('#tutorial-prev');
 const tutorialTitle = document.querySelector('#tutorial-title');
 const tutorialText = document.querySelector('#tutorial-text');
+const tutorialTip = document.querySelector('#tutorial-tip');
+const tutorialStepLabel = document.querySelector('#tutorial-step-label');
 const tutorialDots = document.querySelectorAll('.tutorial-dots i');
 const accentColor = document.querySelector('#accent-color');
 const tabOrder = document.querySelector('#tab-order');
 const tutorialSteps = [
-	['Votre tableau de bord', "Consultez votre solde et vos indicateurs depuis l'onglet Aperçu."],
-	['Vos opérations', 'Ajoutez, modifiez et catégorisez vos revenus et dépenses dans Transactions.'],
-	['Votre organisation', "Définissez votre budget mensuel et personnalisez l'apparence dans Paramètres."]
+	['Votre tableau de bord', "Consultez votre solde et vos indicateurs depuis l'onglet Aperçu.", 'Le slider vous permet de parcourir les cinq indicateurs : solde, revenus, dépenses fixes et dépenses variables.'],
+	['Ajouter rapidement', "Ajoutez une dépense ou un revenu directement dans l'Aperçu.", 'Choisissez le type, indiquez le montant et la catégorie, puis cliquez sur Ajouter directement.'],
+	['Gérer vos opérations', 'Utilisez Transactions pour modifier, catégoriser et planifier vos opérations.', 'Le journal conserve vos actions et les données sont sauvegardées automatiquement après chaque changement.'],
+	['Planifier et personnaliser', "Définissez votre budget mensuel, changez la devise et adaptez l'interface.", 'Le bouton Paramètres permet aussi de changer la couleur et de réorganiser les onglets.']
 ];
 const languageSelect = document.querySelector('#language');
 const translations = {
@@ -90,10 +94,13 @@ function closeDialog(dialog) {
 }
 
 function updateTutorial() {
-	const [title, text] = tutorialSteps[tutorialStep];
+	const [title, text, tip] = tutorialSteps[tutorialStep];
 	tutorialTitle.textContent = title;
 	tutorialText.textContent = text;
+	tutorialTip.textContent = tip;
+	tutorialStepLabel.textContent = `ÉTAPE ${tutorialStep + 1} SUR ${tutorialSteps.length}`;
 	tutorialDots.forEach((dot, index) => dot.classList.toggle('active', index === tutorialStep));
+	tutorialPrev.disabled = tutorialStep === 0;
 	tutorialNext.textContent = tutorialStep === tutorialSteps.length - 1 ? 'Terminer' : 'Suivant';
 }
 
@@ -117,6 +124,7 @@ function applyAccent() {
 document.querySelector('#open-tutorial').addEventListener('click', () => { tutorialStep = 0; updateTutorial(); openDialog(tutorialDialog); });
 document.querySelector('#open-settings').addEventListener('click', () => openDialog(settingsDialog));
 tutorialNext.addEventListener('click', () => { if (tutorialStep < tutorialSteps.length - 1) { tutorialStep += 1; updateTutorial(); } else closeDialog(tutorialDialog); });
+tutorialPrev.addEventListener('click', () => { if (tutorialStep > 0) { tutorialStep -= 1; updateTutorial(); } });
 document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => closeDialog(document.querySelector(`#${button.dataset.closeDialog}`))));
 accentColor.addEventListener('change', () => { localStorage.setItem('budgestion-accent', accentColor.value); applyAccent(); });
 tabOrder.addEventListener('change', () => { localStorage.setItem('budgestion-tab-order', tabOrder.value); applyTabOrder(); });
