@@ -94,6 +94,8 @@
 				<section class="monthly-overview" aria-label="Aperçu du budget mensuel"><div><span>Total prévu</span><strong id="monthly-planned-total">0,00 €</strong></div><div><span>Total dépensé</span><strong id="monthly-spent-total">0,00 €</strong></div><div><span>Total disponible</span><strong id="monthly-available-total">0,00 €</strong></div></section>
 				<section class="category-budget-panel">
 					<div class="section-heading"><div><p class="eyebrow">ENVELOPPES</p><h2>Budget mensuel par catégorie</h2></div><span class="muted">Modifiable à tout moment</span></div>
+					<div class="category-manager"><input id="new-category" type="text" maxlength="30" placeholder="Nom de la nouvelle catégorie" /><button id="add-category" type="button">Ajouter une catégorie</button></div>
+					<div id="category-manager-list" class="category-manager-list"></div>
 					<div id="category-budgets" class="category-budgets"></div>
 				</section>
 				<section class="insights budget-insights"><div class="insight-card"><h2>Budget par catégorie</h2><div id="budget-category-summary"></div><p class="empty">Les dépenses sont regroupées automatiquement.</p></div></section>

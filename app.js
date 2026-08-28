@@ -3,6 +3,8 @@ const savedState = loadState();
 const transactions = savedState.transactions;
 const actions = savedState.actions;
 const categoryBudgetValues = savedState.categoryBudgets || {};
+const defaultCategories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Autre'];
+const categoryNames = [...new Set((Array.isArray(savedState.categories) && savedState.categories.length ? savedState.categories : defaultCategories).filter(category => category && category !== 'Salaire'))];
 const form = document.querySelector('#transaction-form');
 const actionLog = document.querySelector('#action-log');
 const emptyLog = document.querySelector('#empty-log');
@@ -20,6 +22,9 @@ const categorySummary = document.querySelector('#category-summary');
 const transactionAnalysis = document.querySelector('#transaction-analysis');
 const budgetCategorySummary = document.querySelector('#budget-category-summary');
 const categoryBudgets = document.querySelector('#category-budgets');
+const categoryManagerList = document.querySelector('#category-manager-list');
+const newCategory = document.querySelector('#new-category');
+const addCategory = document.querySelector('#add-category');
 const monthlyPlannedTotal = document.querySelector('#monthly-planned-total');
 const monthlySpentTotal = document.querySelector('#monthly-spent-total');
 const monthlyAvailableTotal = document.querySelector('#monthly-available-total');
@@ -259,7 +264,8 @@ function loadState() {
 		return {
 			transactions: Array.isArray(state?.transactions) ? state.transactions : [],
 			actions: Array.isArray(state?.actions) ? state.actions.map(action => ({ ...action, date: new Date(action.date) })) : [],
-			categoryBudgets: state?.categoryBudgets && typeof state.categoryBudgets === 'object' ? state.categoryBudgets : {}
+			categoryBudgets: state?.categoryBudgets && typeof state.categoryBudgets === 'object' ? state.categoryBudgets : {},
+			categories: Array.isArray(state?.categories) ? state.categories : null
 		};
 	} catch {
 		return { transactions: [], actions: [] };
@@ -268,7 +274,7 @@ function loadState() {
 
 function saveState(message = 'Sauvegarde automatique effectuée') {
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, actions, categoryBudgets: categoryBudgetValues }));
+		localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, actions, categoryBudgets: categoryBudgetValues, categories: categoryNames }));
 		saveStatus.textContent = `${message} · ${new Date().toLocaleTimeString('fr-FR')}`;
 	} catch {
 		saveStatus.textContent = 'Sauvegarde locale indisponible';
@@ -304,10 +310,9 @@ function renderBudget() {
 }
 
 function renderCategoryBudgets() {
-	const categories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Autre'];
 	let plannedTotal = 0;
 	let spentTotal = 0;
-	categoryBudgets.innerHTML = categories.map(category => {
+	categoryBudgets.innerHTML = categoryNames.map(category => {
 		const spent = transactions.filter(item => item.type === 'expense' && item.category === category).reduce((total, item) => total + item.amount, 0);
 		const budget = Number(categoryBudgetValues[category]) || 0;
 		plannedTotal += budget;
@@ -325,7 +330,48 @@ function renderCategoryBudgets() {
 	monthlySpentTotal.textContent = formatMoney(spentTotal);
 	monthlyAvailableTotal.textContent = formatMoney(plannedTotal - spentTotal);
 	monthlyAvailableTotal.classList.toggle('over-budget', plannedTotal - spentTotal < 0);
+	renderCategoryManager();
 }
+
+function renderCategoryManager() {
+	categoryManagerList.innerHTML = categoryNames.map((category, index) => `<div class="category-manager-row"><input value="${category}" data-category-index="${index}" aria-label="Nom de la catégorie ${category}" /><button class="rename-category" data-category-index="${index}" type="button">Renommer</button></div>`).join('');
+	categoryManagerList.querySelectorAll('.rename-category').forEach(button => button.addEventListener('click', () => {
+		const index = Number(button.dataset.categoryIndex);
+		const input = categoryManagerList.querySelector(`input[data-category-index="${index}"]`);
+		const nextName = input.value.trim();
+		const previousName = categoryNames[index];
+		if (!nextName || nextName === 'Salaire' || categoryNames.some((category, categoryIndex) => categoryIndex !== index && category.toLowerCase() === nextName.toLowerCase())) { input.value = previousName; return; }
+		categoryNames[index] = nextName;
+		if (categoryBudgetValues[previousName] !== undefined) {
+			categoryBudgetValues[nextName] = categoryBudgetValues[previousName];
+			delete categoryBudgetValues[previousName];
+		}
+		transactions.forEach(item => { if (item.category === previousName) item.category = nextName; });
+		saveState('Catégorie renommée');
+		renderBudget();
+		renderOperations();
+		renderCategoryOptions();
+	}));
+}
+
+function renderCategoryOptions() {
+	['category', 'quick-category'].forEach(id => {
+		const select = document.querySelector(`#${id}`);
+		const currentValue = select.value;
+		select.innerHTML = categoryNames.map(category => `<option>${category}</option>`).join('');
+		select.value = categoryNames.includes(currentValue) ? currentValue : categoryNames[0];
+	});
+}
+
+addCategory.addEventListener('click', () => {
+	const name = newCategory.value.trim();
+	if (!name || name === 'Salaire' || categoryNames.some(category => category.toLowerCase() === name.toLowerCase())) return;
+	categoryNames.push(name);
+	newCategory.value = '';
+	saveState('Catégorie ajoutée');
+	renderCategoryOptions();
+	renderCategoryBudgets();
+});
 
 
 function renderInsights() {
@@ -506,4 +552,5 @@ quickTransactionForm.addEventListener('submit', event => {
 
 renderBudget();
 renderOperations();
+renderCategoryOptions();
 logAction('Application ouverte', 'Journal prêt à enregistrer vos opérations');
