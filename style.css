@@ -141,4 +141,7 @@ button { transition: background .2s, box-shadow .2s, transform .2s; }
 .save-status { color: var(--muted); font-size: .78rem; }
 @media (max-width: 700px) { header { padding: 26px 22px; border-radius: 18px; } .app { padding-left: 16px; padding-right: 16px; } .overview-heading { align-items: flex-start; flex-direction: column; } .overview-heading > button { width: 100%; } .chart-panel, .operations, .insight-card, form, .journal { padding: 20px; } }
 @media (max-width: 700px) { .category-budget-row { grid-template-columns: 1fr 1fr; gap: 12px; } .category-budget-status { grid-column: 1 / -1; } }
+#vehicle-dialog { max-height: calc(100vh - 40px); overflow-y: auto; }
+.vehicle-card .section-heading { margin-bottom: 12px; }
+.vehicle-card .section-heading h2 { margin-bottom: 0; }
 

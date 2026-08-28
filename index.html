@@ -53,6 +53,7 @@
 				<div class="insight-card"><h2 data-i18n="accountBalances">Soldes des comptes</h2><div id="account-balances"></div></div>
 				<div class="insight-card"><h2 data-i18n="plannedIncome">Revenus planifiés</h2><div id="planned-income-list"></div><p id="empty-planned-income" class="empty" data-i18n="noPlannedIncome">Aucun revenu planifié.</p></div>
 				<div class="insight-card"><h2 data-i18n="plannedExpenses">Dépenses planifiées</h2><div id="planned-list"></div><p id="empty-planned" class="empty" data-i18n="noPlannedExpenses">Aucune dépense planifiée.</p></div>
+				<div class="insight-card vehicle-card"><div class="section-heading"><h2>Voiture et assurance</h2><button id="edit-vehicle" class="quiet" type="button">Modifier</button></div><div id="vehicle-summary"></div></div>
 			</section>
 			</section>
 
@@ -110,7 +111,26 @@
 			<p class="eyebrow">PERSONNALISATION</p><h2>Paramètres</h2>
 			<label>Couleur d'accent<select id="accent-color"><option value="violet">Violet</option><option value="bleu">Bleu</option><option value="vert">Vert</option><option value="corail">Corail</option></select></label>
 			<label>Organisation des onglets<select id="tab-order"><option value="overview,transactions,budget">Aperçu · Transactions · Budget</option><option value="transactions,overview,budget">Transactions · Aperçu · Budget</option><option value="budget,overview,transactions">Budget · Aperçu · Transactions</option></select></label>
+			<label>Code de synchronisation<input id="sync-code-input" type="text" placeholder="Ex. famille-dupont" /></label>
+<button id="apply-sync-code" class="quiet" type="button">Activer la synchronisation</button>
 			<button id="reset-settings" class="quiet" type="button">Réinitialiser les paramètres</button>
+		</dialog>
+		<dialog id="vehicle-dialog" class="app-dialog">
+			<button class="dialog-close" data-close-dialog="vehicle-dialog" type="button" aria-label="Fermer">×</button>
+			<p class="eyebrow">VOITURE ET ASSURANCE</p><h2>Suivi du véhicule</h2>
+			<form id="vehicle-form">
+				<label>Modèle du véhicule<input id="vehicle-model" type="text" maxlength="40" placeholder="Ex. Renault Clio" /></label>
+				<label>Immatriculation<input id="vehicle-plate" type="text" maxlength="15" placeholder="AA-123-BB" /></label>
+				<label>Kilométrage<input id="vehicle-mileage" type="number" min="0" step="1" placeholder="0" /></label>
+				<label>Compagnie d'assurance<input id="vehicle-insurer" type="text" maxlength="40" placeholder="Ex. MAIF" /></label>
+				<label>Numéro de contrat<input id="vehicle-policy" type="text" maxlength="30" placeholder="Facultatif" /></label>
+				<label>Prime d'assurance (€)<input id="vehicle-premium" type="number" min="0" step="0.01" placeholder="0,00" /></label>
+				<label>Fréquence de la prime<select id="vehicle-premium-frequency"><option value="monthly">Mensuelle</option><option value="quarterly">Trimestrielle</option><option value="yearly">Annuelle</option></select></label>
+				<label>Échéance de l'assurance<input id="vehicle-renewal" type="date" /></label>
+				<label>Budget carburant mensuel (€)<input id="vehicle-fuel" type="number" min="0" step="0.01" placeholder="0,00" /></label>
+				<label>Prochain contrôle technique<input id="vehicle-inspection" type="date" /></label>
+				<div class="dialog-actions"><button id="vehicle-reset" class="quiet" type="button">Effacer</button><button type="submit">Enregistrer</button></div>
+			</form>
 		</dialog>
 		<script type="module" src="/app.js"></script>
 		<script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));</script>

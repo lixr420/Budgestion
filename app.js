@@ -1,8 +1,12 @@
 const STORAGE_KEY = 'budgestion-state';
+import { supabase } from './supabaseClient.js';
+const SYNC_KEY = 'budgestion-sync-code';
+let syncCode = localStorage.getItem(SYNC_KEY) || '';
 const savedState = loadState();
 const transactions = savedState.transactions;
 const actions = savedState.actions;
 const categoryBudgetValues = savedState.categoryBudgets || {};
+const vehicleData = savedState.vehicle || {};
 const defaultCategories = ['Logement', 'Alimentation', 'Transport', 'Loisirs', 'Salaire', 'Pension', 'Indemnité', 'Allocation familiale', 'Autre'];
 const categoryNames = [...new Set([...defaultCategories, ...(Array.isArray(savedState.categories) ? savedState.categories : [])].filter(Boolean))];
 const form = document.querySelector('#transaction-form');
@@ -23,6 +27,9 @@ const transactionAnalysis = document.querySelector('#transaction-analysis');
 const budgetCategorySummary = document.querySelector('#budget-category-summary');
 const categoryBudgets = document.querySelector('#category-budgets');
 const categoryManagerList = document.querySelector('#category-manager-list');
+const vehicleSummary = document.querySelector('#vehicle-summary');
+const vehicleDialog = document.querySelector('#vehicle-dialog');
+const vehicleForm = document.querySelector('#vehicle-form');
 const newCategory = document.querySelector('#new-category');
 const addCategory = document.querySelector('#add-category');
 const monthlyPlannedTotal = document.querySelector('#monthly-planned-total');
@@ -269,7 +276,8 @@ function loadState() {
 			transactions: Array.isArray(state?.transactions) ? state.transactions : [],
 			actions: Array.isArray(state?.actions) ? state.actions.map(action => ({ ...action, date: new Date(action.date) })) : [],
 			categoryBudgets: state?.categoryBudgets && typeof state.categoryBudgets === 'object' ? state.categoryBudgets : {},
-			categories: Array.isArray(state?.categories) ? state.categories : null
+			categories: Array.isArray(state?.categories) ? state.categories : null,
+			vehicle: state?.vehicle && typeof state.vehicle === 'object' ? state.vehicle : {}
 		};
 	} catch {
 		return { transactions: [], actions: [] };
@@ -278,12 +286,12 @@ function loadState() {
 
 function saveState(message = 'Sauvegarde automatique effectuée') {
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, actions, categoryBudgets: categoryBudgetValues, categories: categoryNames }));
+		localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, actions, categoryBudgets: categoryBudgetValues, categories: categoryNames, vehicle: vehicleData }));
 		saveStatus.textContent = `${message} · ${new Date().toLocaleTimeString('fr-FR')}`;
 	} catch {
 		saveStatus.textContent = 'Sauvegarde locale indisponible';
 	}
-}
+	pushToSupabase();}
 
 function logAction(message, details = '') {
 	actions.unshift({ message, details, date: new Date() });
@@ -377,6 +385,76 @@ addCategory.addEventListener('click', () => {
 	renderCategoryBudgets();
 });
 
+
+const vehicleFields = {
+	model: '#vehicle-model',
+	plate: '#vehicle-plate',
+	mileage: '#vehicle-mileage',
+	insurer: '#vehicle-insurer',
+	policy: '#vehicle-policy',
+	premium: '#vehicle-premium',
+	premiumFrequency: '#vehicle-premium-frequency',
+	renewal: '#vehicle-renewal',
+	fuelBudget: '#vehicle-fuel',
+	inspection: '#vehicle-inspection'
+};
+const premiumMonths = { monthly: 1, quarterly: 3, yearly: 12 };
+const premiumLabels = { monthly: 'mois', quarterly: 'trimestre', yearly: 'an' };
+
+function formatDay(value) {
+	return value ? new Date(`${value}T00:00:00`).toLocaleDateString('fr-FR') : '';
+}
+
+function fillVehicleForm() {
+	Object.entries(vehicleFields).forEach(([key, selector]) => {
+		const field = document.querySelector(selector);
+		if (vehicleData[key] !== undefined) field.value = vehicleData[key];
+		else if (field.tagName === 'SELECT') field.value = 'monthly';
+		else field.value = '';
+	});
+}
+
+function renderVehicle() {
+	const premium = Number(vehicleData.premium) || 0;
+	const monthlyInsurance = premium / (premiumMonths[vehicleData.premiumFrequency] || 1);
+	const fuel = Number(vehicleData.fuelBudget) || 0;
+	const rows = [];
+	if (vehicleData.model) rows.push(['Véhicule', vehicleData.model + (vehicleData.plate ? ` · ${vehicleData.plate}` : '')]);
+	else if (vehicleData.plate) rows.push(['Immatriculation', vehicleData.plate]);
+	if (vehicleData.mileage) rows.push(['Kilométrage', `${Number(vehicleData.mileage).toLocaleString('fr-FR')} km`]);
+	if (vehicleData.insurer) rows.push(['Assurance', vehicleData.insurer + (vehicleData.policy ? ` · ${vehicleData.policy}` : '')]);
+	if (premium) rows.push(['Prime', `${formatMoney(premium)} / ${premiumLabels[vehicleData.premiumFrequency] || 'mois'}`]);
+	if (vehicleData.renewal) rows.push(["Échéance de l'assurance", formatDay(vehicleData.renewal)]);
+	if (fuel) rows.push(['Budget carburant', `${formatMoney(fuel)} / mois`]);
+	if (vehicleData.inspection) rows.push(['Prochain contrôle technique', formatDay(vehicleData.inspection)]);
+	if (monthlyInsurance || fuel) rows.push(['Coût mensuel estimé', formatMoney(monthlyInsurance + fuel)]);
+	vehicleSummary.innerHTML = rows.length
+		? rows.map(([label, value]) => `<div class="insight-row"><span>${label}</span><strong>${value}</strong></div>`).join('')
+		: '<p class="empty">Aucune information enregistrée.</p>';
+}
+
+document.querySelector('#edit-vehicle').addEventListener('click', () => { fillVehicleForm(); openDialog(vehicleDialog); });
+
+vehicleForm.addEventListener('submit', event => {
+	event.preventDefault();
+	Object.entries(vehicleFields).forEach(([key, selector]) => {
+		const value = document.querySelector(selector).value.trim();
+		if (value) vehicleData[key] = value;
+		else delete vehicleData[key];
+	});
+	saveState('Informations véhicule enregistrées');
+	renderVehicle();
+	logAction('Véhicule mis à jour', vehicleData.model || vehicleData.insurer || 'Informations enregistrées');
+	closeDialog(vehicleDialog);
+});
+
+document.querySelector('#vehicle-reset').addEventListener('click', () => {
+	Object.keys(vehicleFields).forEach(key => delete vehicleData[key]);
+	fillVehicleForm();
+	saveState('Informations véhicule effacées');
+	renderVehicle();
+	closeDialog(vehicleDialog);
+});
 
 function renderInsights() {
 	const accounts = [...new Set(transactions.map(item => item.account || 'Compte courant'))];
@@ -557,4 +635,41 @@ quickTransactionForm.addEventListener('submit', event => {
 renderBudget();
 renderOperations();
 renderCategoryOptions();
+renderVehicle();
 logAction('Application ouverte', 'Journal prêt à enregistrer vos opérations');
+
+async function pushToSupabase() {
+	if (!syncCode) return;
+	const { error } = await supabase.from('app_state').upsert({
+		sync_code: syncCode,
+		data: { transactions, actions, categoryBudgets: categoryBudgetValues, categories: categoryNames, vehicle: vehicleData },
+		updated_at: new Date().toISOString()
+	});
+	if (error) console.error('Erreur de synchronisation :', error.message);
+}
+
+async function pullFromSupabase() {
+	if (!syncCode) return;
+	const { data, error } = await supabase.from('app_state').select('data').eq('sync_code', syncCode).maybeSingle();
+	if (error) { console.error('Erreur de récupération :', error.message); return; }
+	if (data) {
+		transactions.length = 0;
+		transactions.push(...data.data.transactions);
+		actions.length = 0;
+		actions.push(...data.data.actions.map(a => ({ ...a, date: new Date(a.date) })));
+		Object.assign(categoryBudgetValues, data.data.categoryBudgets);
+		Object.assign(vehicleData, data.data.vehicle);
+		renderBudget();
+		renderOperations();
+		renderActions();
+	}
+}
+document.querySelector('#apply-sync-code').addEventListener('click', () => {
+	const input = document.querySelector('#sync-code-input').value.trim();
+	if (!input) return;
+	syncCode = input;
+	localStorage.setItem(SYNC_KEY, syncCode);
+	pullFromSupabase();
+	pushToSupabase();
+});
+if (syncCode) pullFromSupabase();
